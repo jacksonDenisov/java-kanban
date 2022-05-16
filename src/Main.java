@@ -3,7 +3,7 @@ import java.util.HashMap;
 public class Main {
 
     public static void main(String[] args) {
-        /*
+
         //Тестовый вызов функций для проверки и отладки программы
         //Создание объектов
         TaskManager taskManager = new TaskManager();
@@ -30,11 +30,6 @@ public class Main {
         HashMap<Integer, Epic> epicsList = taskManager.getEpicsList();
         HashMap<Integer, SubTask> subTasksList = taskManager.getSubTasksList();
 
-        //Удаление всех задач
-        taskManager.clearTasksList();
-        taskManager.clearEpicsList();
-        taskManager.clearSubTasksList();
-
         //Получение по идентификатору
         Task task = taskManager.getTaskById(1);
         Epic epic = taskManager.getEpicById(3);
@@ -43,16 +38,19 @@ public class Main {
         //Получение списка всех подзадач определённого эпика
         HashMap<Integer, SubTask> subTasksListOfEpic = taskManager.getSubTasksListOfEpic(5);
 
+        //Обновление объектов
+        taskManager.updateTask(1, new Task("Новое название задачи 1", "Новое описание задачи 1"));
+        taskManager.updateEpic(5, new Epic("Новое название эпика 5", "Новое описание эпика 5"));
+        taskManager.updateSubTask(4, new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3));
+
         //Удаление объектов по ID
         taskManager.removeTaskById(1);
         taskManager.removeEpicById(3);
         taskManager.removeSubTaskById(3);
 
-        //Обновление объектов
-        taskManager.updateTask(1, new Task("Новое название задачи 1", "Новое описание задачи 1"));
-        taskManager.updateEpic(5, new Epic("Новое название эпика 5", "Новое описание эпика 5"));
-        taskManager.updateSubTask(4, new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3));
-        System.out.println(taskManager.epicsList.get(3).taskStatus);
-        */
+        //Удаление всех задач
+        taskManager.clearTasksList();
+        taskManager.clearEpicsList();
+        taskManager.clearSubTasksList();
     }
 }

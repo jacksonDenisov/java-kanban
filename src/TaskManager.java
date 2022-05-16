@@ -116,9 +116,11 @@ public class TaskManager {
     }
 
     public void removeSubTaskById(int taskId) {
-        int epicIdForUpdate = subTasksList.get(taskId).parentEpicId;
-        subTasksList.remove(taskId);
-        updateEpicStatus(epicIdForUpdate);
+        if (subTasksList.size() != 0){
+            int epicIdForUpdate = subTasksList.get(taskId).parentEpicId;
+            subTasksList.remove(taskId);
+            updateEpicStatus(epicIdForUpdate);
+        }
     }
 
     public void updateEpicStatus(int taskId) {

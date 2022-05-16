@@ -7,5 +7,4 @@ public class Epic extends Task {
         super(taskName, taskDescription);
         subTasksListOfEpic = new HashMap<>();
     }
-
 }

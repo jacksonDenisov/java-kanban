@@ -5,5 +5,4 @@ public class SubTask extends Task {
         super(taskName, taskDescription);
         this.parentEpicId = parentEpicId;
     }
-
 }

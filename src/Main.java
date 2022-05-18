@@ -44,9 +44,9 @@ public class Main {
         ArrayList<Integer> subTasksListOfEpic = taskManager.getSubTasksListOfEpic(5);
 
         //Обновление объектов
-        taskManager.updateTask(1, new Task("Новое название задачи 1", "Новое описание задачи 1"));
-        taskManager.updateEpic(5, new Epic("Новое название эпика 5", "Новое описание эпика 5"));
-        taskManager.updateSubTask(4, new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3));
+        taskManager.updateTask(new Task("Новое название задачи 1", "Новое описание задачи 1"));
+        taskManager.updateEpic(new Epic("Новое название эпика 5", "Новое описание эпика 5"));
+        taskManager.updateSubTask(new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3));
 
         //Удаление объектов по ID
         taskManager.removeTaskById(1);

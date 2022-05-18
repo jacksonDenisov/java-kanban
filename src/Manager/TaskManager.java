@@ -40,9 +40,8 @@ public class TaskManager {
         tasksList.put(task.getId(), task);
     }
 
-    public void updateTask(int id, Task newTask) {
-        newTask.setId(id);
-        tasksList.put(id, newTask);
+    public void updateTask(Task newTask) {
+        tasksList.put(newTask.getId(), newTask);
     }
 
     public void removeTaskById(int id) {
@@ -68,11 +67,10 @@ public class TaskManager {
         epicsList.put(epic.getId(), epic);
     }
 
-    public void updateEpic(int id, Epic newEpic) {
-        Epic oldEpic = epicsList.get(id);
+    public void updateEpic(Epic newEpic) {
+        Epic oldEpic = epicsList.get(newEpic.getId());
         newEpic.setSubTasksListOfEpic(oldEpic.getSubTasksListOfEpic());
-        newEpic.setId(id);
-        epicsList.put(id, newEpic);
+        epicsList.put(newEpic.getId(), newEpic);
     }
 
     public void removeEpicById(int id) {
@@ -111,10 +109,21 @@ public class TaskManager {
         updateEpicStatus(parentEpic.getId());
     }
 
-    public void updateSubTask(int id, SubTask newSubTask) {
-        newSubTask.setId(id);
-        subTasksList.put(id, newSubTask);
-        updateEpicStatus(newSubTask.getParentEpicId());
+    public void updateSubTask(SubTask newSubTask) {
+        int id = newSubTask.getId();
+        SubTask oldSubTask = subTasksList.get(id);
+        if (oldSubTask.getParentEpicId() == newSubTask.getParentEpicId()){
+            subTasksList.put(id, newSubTask);
+            updateEpicStatus(newSubTask.getParentEpicId());
+        } else {
+            Epic oldParentEpic = epicsList.get(oldSubTask.getParentEpicId());
+            Epic newParentEpic = epicsList.get(newSubTask.getParentEpicId());
+            oldParentEpic.removeSubTaskInSubTaskListOfEpic(id);
+            newParentEpic.addSubTaskInSubTaskListOfEpic(id);
+            subTasksList.put(id, newSubTask);
+            updateEpicStatus(newSubTask.getParentEpicId());
+            updateEpicStatus(oldSubTask.getParentEpicId());
+        }
     }
 
     public void removeSubTaskById(int id) {

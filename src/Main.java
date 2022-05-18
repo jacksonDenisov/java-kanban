@@ -1,4 +1,7 @@
-import java.util.HashMap;
+import Model.*;
+import Manager.TaskManager;
+
+import java.util.ArrayList;
 
 public class Main {
 
@@ -18,25 +21,27 @@ public class Main {
         taskManager.createSubTask(new SubTask("Название сабтаски 7", "Описание сабтаски 7", 5));
 
         //Изменение статусов объектов
-        taskManager.tasksList.get(1).setTaskStatus(TaskStatus.IN_PROGRESS);
-        taskManager.tasksList.get(2).setTaskStatus(TaskStatus.DONE);
 
-        taskManager.subTasksList.get(4).setTaskStatus(TaskStatus.IN_PROGRESS);
-        taskManager.subTasksList.get(6).setTaskStatus(TaskStatus.DONE);
-        taskManager.subTasksList.get(7).setTaskStatus(TaskStatus.DONE);
+        taskManager.getTaskById(1).setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.getTaskById(2).setStatus(TaskStatus.DONE);
+
+        taskManager.getSubTaskById(4).setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.getSubTaskById(6).setStatus(TaskStatus.DONE);
+        taskManager.getSubTaskById(7).setStatus(TaskStatus.DONE);
 
         //Получение списка всех задач
-        HashMap<Integer, Task> taskList = taskManager.getTasksList();
-        HashMap<Integer, Epic> epicsList = taskManager.getEpicsList();
-        HashMap<Integer, SubTask> subTasksList = taskManager.getSubTasksList();
+        ArrayList<Task> taskList = taskManager.getTasksList();
+        ArrayList<Epic> epicsList = taskManager.getEpicsList();
+        ArrayList<SubTask> subTasksList = taskManager.getSubTasksList();
 
         //Получение по идентификатору
+
         Task task = taskManager.getTaskById(1);
         Epic epic = taskManager.getEpicById(3);
         SubTask subTask = taskManager.getSubTaskById(4);
 
         //Получение списка всех подзадач определённого эпика
-        HashMap<Integer, SubTask> subTasksListOfEpic = taskManager.getSubTasksListOfEpic(5);
+        ArrayList<Integer> subTasksListOfEpic = taskManager.getSubTasksListOfEpic(5);
 
         //Обновление объектов
         taskManager.updateTask(1, new Task("Новое название задачи 1", "Новое описание задачи 1"));
@@ -46,7 +51,7 @@ public class Main {
         //Удаление объектов по ID
         taskManager.removeTaskById(1);
         taskManager.removeEpicById(3);
-        taskManager.removeSubTaskById(3);
+        taskManager.removeSubTaskById(6);
 
         //Удаление всех задач
         taskManager.clearTasksList();

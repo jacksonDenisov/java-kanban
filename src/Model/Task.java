@@ -1,17 +1,17 @@
 package Model;
 
-import Manager.TaskManager;
+import Manager.InMemoryTaskManager;
 
 public class Task {
     private String name;
     private String description;
     private TaskStatus status;
-    private int id;
+    private static int id;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.id = TaskManager.generateId();
+        this.id = InMemoryTaskManager.generateId();
         this.status = TaskStatus.NEW;
     }
 

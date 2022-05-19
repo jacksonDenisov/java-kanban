@@ -18,12 +18,12 @@ public class Epic extends Task {
         this.subTasksListOfEpic = subTasksListOfEpic;
     }
 
-    public void addSubTaskInSubTaskListOfEpic(Integer subTaskId) {
-        subTasksListOfEpic.add(subTaskId);
+    public void addSubTaskInSubTaskListOfEpic(Integer id) {
+        subTasksListOfEpic.add(id);
     }
 
-    public void removeSubTaskInSubTaskListOfEpic(Integer subTaskId) {
-        subTasksListOfEpic.remove(subTaskId);
+    public void removeSubTaskInSubTaskListOfEpic(Integer id) {
+        subTasksListOfEpic.remove(id);
     }
 
 }

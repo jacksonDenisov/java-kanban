@@ -1,7 +1,8 @@
+import Manager.*;
 import Model.*;
-import Manager.TaskManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -9,7 +10,8 @@ public class Main {
 
         //Тестовый вызов функций для проверки и отладки программы
         //Создание объектов
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
+
         taskManager.createTask(new Task("Название задачи 1", "Описание задачи 1"));
         taskManager.createTask(new Task("Название задачи 2", "Описание задачи 2"));
 
@@ -20,14 +22,28 @@ public class Main {
         taskManager.createSubTask(new SubTask("Название сабтаски 6", "Описание сабтаски 6", 5));
         taskManager.createSubTask(new SubTask("Название сабтаски 7", "Описание сабтаски 7", 5));
 
+        //Проверка получения истории вызова объектов
+        taskManager.getTask(1);
+        taskManager.getTask(2);
+        taskManager.getTask(3);
+        taskManager.getEpic(3);
+        taskManager.getEpic(3);
+        taskManager.getEpic(3);
+        taskManager.getEpic(3);
+        taskManager.getEpic(5);
+        taskManager.getSubTask(4);
+        taskManager.getSubTask(6);
+        taskManager.getSubTask(7);
+        List<Task> history = taskManager.getHistory();
+
         //Изменение статусов объектов
 
-        taskManager.getTaskById(1).setStatus(TaskStatus.IN_PROGRESS);
-        taskManager.getTaskById(2).setStatus(TaskStatus.DONE);
+        taskManager.getTask(1).setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.getTask(2).setStatus(TaskStatus.DONE);
 
-        taskManager.getSubTaskById(4).setStatus(TaskStatus.IN_PROGRESS);
-        taskManager.getSubTaskById(6).setStatus(TaskStatus.DONE);
-        taskManager.getSubTaskById(7).setStatus(TaskStatus.DONE);
+        taskManager.getSubTask(4).setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.getSubTask(6).setStatus(TaskStatus.DONE);
+        taskManager.getSubTask(7).setStatus(TaskStatus.DONE);
 
         //Получение списка всех задач
         ArrayList<Task> taskList = taskManager.getTasksList();
@@ -36,26 +52,33 @@ public class Main {
 
         //Получение по идентификатору
 
-        Task task = taskManager.getTaskById(1);
-        Epic epic = taskManager.getEpicById(3);
-        SubTask subTask = taskManager.getSubTaskById(4);
+        Task task = taskManager.getTask(1);
+        Epic epic = taskManager.getEpic(3);
+        SubTask subTask = taskManager.getSubTask(4);
 
         //Получение списка всех подзадач определённого эпика
         ArrayList<Integer> subTasksListOfEpic = taskManager.getSubTasksListOfEpic(5);
 
         //Обновление объектов
-        taskManager.updateTask(new Task("Новое название задачи 1", "Новое описание задачи 1"));
-        taskManager.updateEpic(new Epic("Новое название эпика 5", "Новое описание эпика 5"));
-        taskManager.updateSubTask(new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3));
+        Task newTask = new Task("Новое название задачи 1", "Новое описание задачи 1");
+        newTask.setId(1);
+        taskManager.updateTask(newTask);
+        Epic newEpic = new Epic("Новое название эпика 5", "Новое описание эпика 5");
+        newEpic.setId(5);
+        taskManager.updateEpic(newEpic);
+        SubTask newSubTask = new SubTask("Новое название сабтаски 4", "Новое описание сабтаски 4", 3);
+        newSubTask.setId(4);
+        taskManager.updateSubTask(newSubTask);
 
         //Удаление объектов по ID
-        taskManager.removeTaskById(1);
-        taskManager.removeEpicById(3);
-        taskManager.removeSubTaskById(6);
+        taskManager.removeTask(1);
+        taskManager.removeEpic(3);
+        taskManager.removeSubTask(6);
 
         //Удаление всех задач
         taskManager.clearTasksList();
         taskManager.clearEpicsList();
         taskManager.clearSubTasksList();
+        System.out.println("end");
     }
 }

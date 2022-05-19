@@ -10,7 +10,4 @@ public interface HistoryManager {
 
     List<Task> getHistory();
 
-    int getHistorySize();
-
-    void setHistorySize(int historySize);
 }

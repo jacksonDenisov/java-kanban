@@ -42,6 +42,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTasksList() {
+        for (int id : tasksList.keySet()) {
+            historyManager.removeTaskFromHistory(id);
+        }
         tasksList.clear();
     }
 
@@ -64,6 +67,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTask(int id) {
         tasksList.remove(id);
+        historyManager.removeTaskFromHistory(id);
     }
 
 
@@ -75,6 +79,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpicsList() {
+        for (int id : subTasksList.keySet()) {
+            historyManager.removeTaskFromHistory(id);
+        }
+        for (int id : epicsList.keySet()) {
+            historyManager.removeTaskFromHistory(id);
+        }
         subTasksList.clear();
         epicsList.clear();
     }
@@ -101,8 +111,10 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpic(int id) {
         for (Integer subTaskInEpicId : epicsList.get(id).getSubTasksListOfEpic()) {
             subTasksList.remove(subTaskInEpicId);
+            historyManager.removeTaskFromHistory(subTaskInEpicId);
         }
         epicsList.remove(id);
+        historyManager.removeTaskFromHistory(id);
     }
 
     @Override
@@ -119,6 +131,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearSubTasksList() {
+        for (int id : subTasksList.keySet()) {
+            historyManager.removeTaskFromHistory(id);
+        }
         for (Integer id : epicsList.keySet()) {
             epicsList.get(id).getSubTasksListOfEpic().clear();
             updateEpicStatus(id);
@@ -165,6 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
         parentEpic.removeSubTaskInSubTaskListOfEpic(id);
         subTasksList.remove(id);
         updateEpicStatus(parentEpicId);
+        historyManager.removeTaskFromHistory(id);
     }
 
     private void updateEpicStatus(int id) {

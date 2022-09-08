@@ -9,7 +9,7 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    public Map<Integer, Node> nodeInfo;
+    public Map<Integer, Node<Task>> nodeInfo;
     public Node<Task> head;
     public Node<Task> tail;
 
@@ -18,8 +18,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public void linkLast(Task task) {
-        final Node oldTail = tail;
-        final Node newNode = new Node<>(tail, task, null);
+        final Node<Task> oldTail = tail;
+        final Node<Task> newNode = new Node<>(tail, task, null);
         tail = newNode;
         if (oldTail == null) {
             head = newNode;
@@ -39,8 +39,8 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasksArray;
     }
 
-    public void removeNode(Node node) {
-        while (nodeInfo.values().remove(node)) ;
+    public void removeNode(Node<Task> node) {
+        nodeInfo.values().remove(node);
         if (node == tail) {
             tail = node.prev;
             tail.next = null;
@@ -51,7 +51,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             node.prev.next = node.next;
             node.next.prev = node.prev;
         }
-
     }
 
 

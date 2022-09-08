@@ -2,7 +2,6 @@ package Manager;
 
 import Model.Task;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface HistoryManager {

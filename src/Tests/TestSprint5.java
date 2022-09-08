@@ -70,7 +70,7 @@ public class TestSprint5 {
         //taskManager.clearSubTasksList();
         //taskManager.clearTasksList();
         //taskManager.clearEpicsList();
-        List<Task> history11 = taskManager.getHistory();
+        //List<Task> history11 = taskManager.getHistory();
 
         System.out.println(history1);
         System.out.println("end");

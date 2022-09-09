@@ -9,50 +9,27 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    public Map<Integer, Node<Task>> nodeInfo;
-    public Node<Task> head;
-    public Node<Task> tail;
+    private Map<Integer, Node<Task>> nodeInfo;
+    private Node<Task> head;
+    private Node<Task> tail;
 
     public InMemoryHistoryManager() {
         nodeInfo = new HashMap<>();
     }
 
-    public void linkLast(Task task) {
-        final Node<Task> oldTail = tail;
-        final Node<Task> newNode = new Node<>(tail, task, null);
-        tail = newNode;
-        if (oldTail == null) {
-            head = newNode;
-        } else {
-            oldTail.next = newNode;
-        }
-        nodeInfo.put(task.getId(), newNode);
-    }
+    public static class Node<Task> {
 
-    public List<Task> getTasks() {
-        List<Task> tasksArray = new ArrayList<>();
-        Node<Task> node = head;
-        while (node != null) {
-            tasksArray.add(node.data);
-            node = node.next;
-        }
-        return tasksArray;
-    }
+        private Task data;
+        private Node<Task> next;
+        private Node<Task> prev;
 
-    public void removeNode(Node<Task> node) {
-        nodeInfo.values().remove(node);
-        if (node == tail) {
-            tail = node.prev;
-            tail.next = null;
-        } else if (node == head) {
-            head = node.next;
-            head.prev = null;
-        } else {
-            node.prev.next = node.next;
-            node.next.prev = node.prev;
+        public Node(Node<Task> prev, Task data, Node<Task> next) {
+            this.data = data;
+            this.next = next;
+            this.prev = prev;
         }
-    }
 
+    }
 
     @Override
     public void addTaskToHistory(Task task) {
@@ -72,4 +49,41 @@ public class InMemoryHistoryManager implements HistoryManager {
     public List<Task> getHistory() {
         return getTasks();
     }
+
+    private void linkLast(Task task) {
+        final Node<Task> oldTail = tail;
+        final Node<Task> newNode = new Node<>(tail, task, null);
+        tail = newNode;
+        if (oldTail == null) {
+            head = newNode;
+        } else {
+            oldTail.next = newNode;
+        }
+        nodeInfo.put(task.getId(), newNode);
+    }
+
+    private List<Task> getTasks() {
+        List<Task> tasksArray = new ArrayList<>();
+        Node<Task> node = head;
+        while (node != null) {
+            tasksArray.add(node.data);
+            node = node.next;
+        }
+        return tasksArray;
+    }
+
+    private void removeNode(Node<Task> node) {
+        nodeInfo.values().remove(node);
+        if (node == tail) {
+            tail = node.prev;
+            tail.next = null;
+        } else if (node == head) {
+            head = node.next;
+            head.prev = null;
+        } else {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+    }
+
 }

@@ -14,7 +14,7 @@ public class Test {
 
 
     public static void smokeTest() {
-
+/*
         //Тестовый вызов функций для проверки и отладки программы
         //Создание объектов
         TaskManager taskManager = Managers.getDefault();
@@ -87,6 +87,6 @@ public class Test {
         taskManager.clearTasksList();
         taskManager.clearEpicsList();
         taskManager.clearSubTasksList();
-        System.out.println("end");
+        System.out.println("end");*/
     }
 }

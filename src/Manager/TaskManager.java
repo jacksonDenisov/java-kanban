@@ -2,7 +2,6 @@ package Manager;
 
 import Model.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
@@ -10,7 +9,7 @@ public interface TaskManager {
     List<Task> getHistory();
 
     //Методы для Task
-    ArrayList<Task> getTasksList();
+    List<Task> getTasksList();
 
     void clearTasksList();
 
@@ -23,7 +22,7 @@ public interface TaskManager {
     void removeTask(int id);
 
     //Методы для Epic
-    ArrayList<Epic> getEpicsList();
+    List<Epic> getEpicsList();
 
     void clearEpicsList();
 
@@ -35,11 +34,11 @@ public interface TaskManager {
 
     void removeEpic(int id);
 
-    ArrayList<Integer> getSubTasksListOfEpic(int id);
+    List<Integer> getSubTasksListOfEpic(int id);
 
 
     //Методы для SubTask
-    ArrayList<SubTask> getSubTasksList();
+    List<SubTask> getSubTasksList();
 
     void clearSubTasksList();
 

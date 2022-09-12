@@ -7,13 +7,14 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
-    private File file;
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private final File file;
 
 
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
+
 
     @Override
     public Task getTask(int id) {
@@ -121,7 +122,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         save();
     }
 
-
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         List<String> history = new ArrayList<>();
@@ -130,21 +130,28 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 history.add(fileReader.readLine());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ManagerSaveException("Ошибка записи");
         }
         //Создание задач из отдельной строки
+        int maxId = 0;
         for (int i = 1; i < history.size() - 2; i++) {
             Task task = fileBackedTasksManager.fromString(history.get(i));
+            if (task.getId() > maxId) {
+                maxId = task.getId();
+            }
             switch (task.getType()) {
                 case Task:
-                    fileBackedTasksManager.createTask(task);
-                    //fileBackedTasksManager.getTask(task.getId());
-                    break;
-                case SubTask:
-                    fileBackedTasksManager.createSubTask((SubTask) task);
+                    fileBackedTasksManager.tasksList.put(task.getId(), task);
                     break;
                 case Epic:
-                    fileBackedTasksManager.createEpic((Epic) task);
+                    fileBackedTasksManager.epicsList.put(task.getId(), (Epic) task);
+                    break;
+                case SubTask:
+                    SubTask subTask = (SubTask) task;
+                    fileBackedTasksManager.subTasksList.put(task.getId(), subTask);
+                    Epic parentEpic = fileBackedTasksManager.epicsList.get(subTask.getParentEpicId());
+                    parentEpic.addSubTaskInSubTaskListOfEpic(subTask.getId());
+                    fileBackedTasksManager.updateEpicStatus(subTask.getParentEpicId());
                     break;
                 default:
                     System.out.println("Не удалось определить тип задачи: " + task.getType());
@@ -152,61 +159,43 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         }
         //Создание истории
         List<Integer> historyList = historyFromString(history.get(history.size() - 1));
-        List<Task> allTasks = fileBackedTasksManager.getAllTasks();
         for (int i = 0; i < historyList.size(); i++) {
-            Task task = null;
-            for (Task tempTask : allTasks) {
-                if (tempTask.getId() == historyList.get(i)) {
-                    task = tempTask;
-                    break;
-                }
-            }
-            switch (task.getType()) {
-                case Task:
-                    fileBackedTasksManager.getTask(task.getId());
-                    break;
-                case SubTask:
-                    fileBackedTasksManager.getSubTask(task.getId());
-                    break;
-                case Epic:
-                    fileBackedTasksManager.getEpic(task.getId());
-                    break;
-                default:
-                    System.out.println("Не удалось определить тип задачи: " + task.getType());
+            int id = historyList.get(i);
+            if (fileBackedTasksManager.tasksList.containsKey(id)) {
+                fileBackedTasksManager.getTask(id);
+            } else if (fileBackedTasksManager.epicsList.containsKey(id)) {
+                fileBackedTasksManager.getEpic(id);
+            } else if (fileBackedTasksManager.subTasksList.containsKey(id)) {
+                fileBackedTasksManager.getSubTask(id);
             }
         }
-        //fileBackedTasksManager.save();
+        fileBackedTasksManager.setMaxId(maxId);
         return fileBackedTasksManager;
     }
+
+
+    private void setMaxId(int id) {
+        FileBackedTasksManager.id = id;
+    }
+
 
     private void save() {
         try (Writer fileWriter = new FileWriter(file)) {
             fileWriter.write("id,type,name,status,description,parentEpic" + "\n");
-            for (Task task : getAllTasks()) {
+            for (Task task : tasksList.values()) {
                 fileWriter.write(taskToString(task) + "\n");
+            }
+            for (Epic epic : epicsList.values()) {
+                fileWriter.write(taskToString(epic) + "\n");
+            }
+            for (SubTask subTask : subTasksList.values()) {
+                fileWriter.write(taskToString(subTask) + "\n");
             }
             fileWriter.write("\n");
             fileWriter.write(historyToString(getHistoryManager()));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка записи");
         }
-    }
-
-
-    private List<Task> getAllTasks() {
-        List<Task> allTasks = new ArrayList<>();
-        TasksIdComparator tasksIdComparator = new TasksIdComparator();
-        for (Task task : getTasksList()) {
-            allTasks.add(task);
-        }
-        for (Epic epic : getEpicsList()) {
-            allTasks.add(epic);
-        }
-        for (SubTask subTask : getSubTasksList()) {
-            allTasks.add(subTask);
-        }
-        allTasks.sort(tasksIdComparator);
-        return allTasks;
     }
 
 
@@ -237,12 +226,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         String result = task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," +
                 task.getDescription();
         if (task.getType() == TaskType.SubTask) {
-            int parentEpicId = 0;
-            for (SubTask subTask : getSubTasksList()) {
-                if (subTask.getId() == task.getId()) {
-                    parentEpicId = subTask.getParentEpicId();
-                }
-            }
+            int parentEpicId = subTasksList.get(task.getId()).getParentEpicId();
             result += "," + parentEpicId;
         }
         return result;
@@ -254,40 +238,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         String[] elements = value.split(",");
         switch (elements[1]) {
             case "Task":
-                task = new Task(Integer.parseInt(elements[0]), elements[2], stringToTaskStatus(elements[3]),
+                task = new Task(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
                         elements[4]);
                 break;
             case "Epic":
-                task = new Epic(Integer.parseInt(elements[0]), elements[2], stringToTaskStatus(elements[3]),
+                task = new Epic(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
                         elements[4]);
                 break;
             case "SubTask":
-                task = new SubTask(Integer.parseInt(elements[0]), elements[2], stringToTaskStatus(elements[3]),
+                task = new SubTask(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
                         elements[4], Integer.parseInt(elements[5]));
                 break;
             default:
                 System.out.println("Не удалось создать задачу из строки: " + value);
         }
         return task;
-    }
-
-
-    private TaskStatus stringToTaskStatus(String value) {
-        TaskStatus taskStatus = null;
-        switch (value) {
-            case "NEW":
-                taskStatus = TaskStatus.NEW;
-                break;
-            case "IN_PROGRESS":
-                taskStatus = TaskStatus.IN_PROGRESS;
-                break;
-            case "DONE":
-                taskStatus = TaskStatus.DONE;
-                break;
-            default:
-                System.out.println("Такого статуса пока не существует: " + value);
-        }
-        return taskStatus;
     }
 
 }

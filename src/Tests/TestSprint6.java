@@ -4,10 +4,7 @@ import Manager.FileBackedTasksManager;
 import Model.*;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+
 
 public class TestSprint6 {
     public static void smokeTest() {
@@ -17,6 +14,7 @@ public class TestSprint6 {
 
 
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+
         fileBackedTasksManager.createTask(new Task("Название задачи 1", "Описание задачи 1"));
         fileBackedTasksManager.createTask(new Task("Название задачи 2", "Описание задачи 2"));
 
@@ -41,6 +39,6 @@ public class TestSprint6 {
 
             //Создать еще один менеджер из бэкапа
         FileBackedTasksManager fileBackedTasksManager1 = fileBackedTasksManager.loadFromFile(file);
-
+        System.out.println("end");
     }
 }

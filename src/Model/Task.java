@@ -1,34 +1,45 @@
 package Model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
     private int id;
     private String name;
     private String description;
-    private TaskStatus status;
+    protected TaskStatus status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
     protected TaskType type;
 
+    //Базовый конструктор
     public Task(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+
+    //Базовый конструктор для InMemoryHistoryManager c временными параметрами
+    public Task(String name, String description, LocalDateTime startTime, Duration duration) {
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
         this.type = TaskType.Task;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
+    //id, type, name, status, description, startTime, endTime, duration, parentEpic
     //Расширенный конструктор для создания задачи из файла
-    public Task(int id, String name, TaskStatus status, String description) {
+    public Task(int id, String name, TaskStatus status, String description, LocalDateTime startTime, Duration duration) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
         this.type = TaskType.Task;
+        this.startTime = startTime;
+        this.duration = duration;
     }
-/*   //Конструктор для создания задачи с типом
-    public Task(String name, String description, TaskType type) {
-        this.name = name;
-        this.description = description;
-        this.type = type;
-        this.status = TaskStatus.NEW;
-    }*/
 
 
     public String getName() {
@@ -67,4 +78,23 @@ public class Task {
         return type;
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
 }

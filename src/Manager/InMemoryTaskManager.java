@@ -1,11 +1,11 @@
 package Manager;
 
+import Exceptions.ManagerTimeAvailableException;
 import Model.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -14,12 +14,14 @@ public class InMemoryTaskManager implements TaskManager {
     protected Map<Integer, SubTask> subTasksList;
     protected static int id;
     protected HistoryManager historyManager;
+    protected Collection<Task> prioritizedTasks;
 
     public InMemoryTaskManager() {
         tasksList = new HashMap<>();
         epicsList = new HashMap<>();
         subTasksList = new HashMap<>();
         historyManager = Managers.getDefaultHistory();
+        prioritizedTasks = new TreeSet<Task>(new TaskStartTimeComparator());
         id = 0;
     }
 
@@ -30,6 +32,18 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public Collection<Task> getPrioritizedTasks() {
+        prioritizedTasks.clear();
+        for (Task task : tasksList.values()) {
+            prioritizedTasks.add(task);
+        }
+        for (SubTask subTask : subTasksList.values()) {
+            prioritizedTasks.add(subTask);
+        }
+        return prioritizedTasks;
     }
 
 
@@ -55,13 +69,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void createTask(Task task) {
-        task.setId(generateId());
-        tasksList.put(task.getId(), task);
+        try {
+            checkIfTimeAvailable(task);
+            task.setId(generateId());
+            tasksList.put(task.getId(), task);
+        } catch (ManagerTimeAvailableException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void updateTask(Task newTask) {
-        tasksList.put(newTask.getId(), newTask);
+        if (tasksList.containsKey(newTask.getId())) {
+            try {
+                checkIfTimeAvailable(newTask);
+                tasksList.put(newTask.getId(), newTask);
+            } catch (ManagerTimeAvailableException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println("Такого ключа задачи не существует!");
+        }
     }
 
     @Override
@@ -110,12 +138,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeEpic(int id) {
-        for (Integer subTaskInEpicId : epicsList.get(id).getSubTasksListOfEpic()) {
-            subTasksList.remove(subTaskInEpicId);
-            historyManager.removeTaskFromHistory(subTaskInEpicId);
+        try {
+            for (Integer subTaskInEpicId : epicsList.get(id).getSubTasksListOfEpic()) {
+                subTasksList.remove(subTaskInEpicId);
+                historyManager.removeTaskFromHistory(subTaskInEpicId);
+            }
+            epicsList.remove(id);
+            historyManager.removeTaskFromHistory(id);
+        } catch (NullPointerException e) {
+            System.out.println("Не удалось найти и удалить Epic с id: " + id);
         }
-        epicsList.remove(id);
-        historyManager.removeTaskFromHistory(id);
     }
 
     @Override
@@ -138,6 +170,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer id : epicsList.keySet()) {
             epicsList.get(id).getSubTasksListOfEpic().clear();
             updateEpicStatus(id);
+            updateEpicStartEndTime(id);
         }
         subTasksList.clear();
     }
@@ -150,44 +183,59 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void createSubTask(SubTask subTask) {
-        subTask.setId(generateId());
-        subTasksList.put(subTask.getId(), subTask);
-        Epic parentEpic = epicsList.get(subTask.getParentEpicId());
-        parentEpic.addSubTaskInSubTaskListOfEpic(subTask.getId());
-        updateEpicStatus(subTask.getParentEpicId());
+        try {
+            checkIfTimeAvailable(subTask);
+            subTask.setId(generateId());
+            subTasksList.put(subTask.getId(), subTask);
+            Epic parentEpic = epicsList.get(subTask.getParentEpicId());
+            parentEpic.addSubTaskInSubTaskListOfEpic(subTask.getId());
+            updateEpicStatus(subTask.getParentEpicId());
+            updateEpicStartEndTime(subTask.getParentEpicId());
+        } catch (ManagerTimeAvailableException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void updateSubTask(SubTask newSubTask) {
-        int id = newSubTask.getId();
-        SubTask oldSubTask = subTasksList.get(id);
-        if (oldSubTask.getParentEpicId() == newSubTask.getParentEpicId()) {
-            subTasksList.put(id, newSubTask);
-            updateEpicStatus(newSubTask.getParentEpicId());
-        } else {
-            Epic oldParentEpic = epicsList.get(oldSubTask.getParentEpicId());
-            Epic newParentEpic = epicsList.get(newSubTask.getParentEpicId());
-            oldParentEpic.removeSubTaskInSubTaskListOfEpic(id);
-            newParentEpic.addSubTaskInSubTaskListOfEpic(id);
-            subTasksList.put(id, newSubTask);
-            updateEpicStatus(newSubTask.getParentEpicId());
-            updateEpicStatus(oldSubTask.getParentEpicId());
+        try {
+            checkIfTimeAvailable(newSubTask);
+            int id = newSubTask.getId();
+            SubTask oldSubTask = subTasksList.get(id);
+            if (oldSubTask.getParentEpicId() == newSubTask.getParentEpicId()) {
+                subTasksList.put(id, newSubTask);
+                updateEpicStatus(newSubTask.getParentEpicId());
+                updateEpicStartEndTime(newSubTask.getParentEpicId());
+            } else {
+                Epic oldParentEpic = epicsList.get(oldSubTask.getParentEpicId());
+                Epic newParentEpic = epicsList.get(newSubTask.getParentEpicId());
+                oldParentEpic.removeSubTaskInSubTaskListOfEpic(id);
+                newParentEpic.addSubTaskInSubTaskListOfEpic(id);
+                subTasksList.put(id, newSubTask);
+                updateEpicStatus(newSubTask.getParentEpicId());
+                updateEpicStartEndTime(newSubTask.getParentEpicId());
+                updateEpicStatus(oldSubTask.getParentEpicId());
+                updateEpicStartEndTime(oldSubTask.getParentEpicId());
+            }
+        } catch (ManagerTimeAvailableException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     public void removeSubTask(int id) {
-        int parentEpicId = subTasksList.get(id).getParentEpicId();
-        Epic parentEpic = epicsList.get(parentEpicId);
-        parentEpic.removeSubTaskInSubTaskListOfEpic(id);
-        subTasksList.remove(id);
-        updateEpicStatus(parentEpicId);
-        historyManager.removeTaskFromHistory(id);
-    }
+        try {
+            int parentEpicId = subTasksList.get(id).getParentEpicId();
+            Epic parentEpic = epicsList.get(parentEpicId);
+            parentEpic.removeSubTaskInSubTaskListOfEpic(id);
+            subTasksList.remove(id);
+            updateEpicStatus(parentEpicId);
+            updateEpicStartEndTime(parentEpicId);
+            historyManager.removeTaskFromHistory(id);
+        } catch (NullPointerException e) {
+            System.out.println("Не удалось найти и удалить SubTask с id: " + id);
+        }
 
-    private static int generateId() {
-        id++;
-        return id;
     }
 
     protected void updateEpicStatus(int id) {
@@ -216,4 +264,51 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    protected void updateEpicStartEndTime(int id) {
+        Epic currentEpic = epicsList.get(id);
+        // Проверяем наличие SubTask у эпик
+        if (currentEpic.getSubTasksListOfEpic().size() != 0) {
+            // Если одна - то ее значения StartTime, EndTime - значения эпика
+            int idSubTask = currentEpic.getSubTasksListOfEpic().get(0);
+            LocalDateTime startTime = subTasksList.get(idSubTask).getStartTime();
+            LocalDateTime endTime = subTasksList.get(idSubTask).getEndTime();
+            Duration duration = subTasksList.get(idSubTask).getDuration();
+            //Если SubTask больше одной, то из них выбираем ранние значения StartTime и поздние EndTime
+            if (currentEpic.getSubTasksListOfEpic().size() > 1) {
+                for (int i = 1; i < currentEpic.getSubTasksListOfEpic().size(); i++) {
+                    idSubTask = currentEpic.getSubTasksListOfEpic().get(i);
+                    duration = duration.plus(subTasksList.get(idSubTask).getDuration());
+                    if (subTasksList.get(idSubTask).getStartTime().isBefore(startTime)) {
+                        startTime = subTasksList.get(idSubTask).getStartTime();
+                    }
+                    if (subTasksList.get(idSubTask).getEndTime().isAfter(endTime)) {
+                        endTime = subTasksList.get(idSubTask).getEndTime();
+                    }
+                }
+            }
+            currentEpic.setDuration(duration);
+            currentEpic.setStartTime(startTime);
+            currentEpic.setEndTime(endTime);
+        } else {
+            currentEpic.setStartTime(null);
+            currentEpic.setEndTime(null);
+        }
+    }
+
+    public void checkIfTimeAvailable(Task task) {
+        Collection<Task> prioritizedTasks = getPrioritizedTasks();
+        for (Task taskTemp : prioritizedTasks) {
+            // a.start < b.end && a.end > b.start тогда пересекаются и время недоступно
+            if (taskTemp.getStartTime().isBefore(task.getEndTime()) &&
+                    taskTemp.getEndTime().isAfter(task.getStartTime())) {
+                throw new ManagerTimeAvailableException("Задача " + task.getName()
+                        + " пересекается по времени с задачей " + taskTemp.getName());
+            }
+        }
+    }
+
+    private static int generateId() {
+        id++;
+        return id;
+    }
 }

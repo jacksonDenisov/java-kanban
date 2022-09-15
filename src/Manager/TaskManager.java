@@ -2,11 +2,14 @@ package Manager;
 
 import Model.*;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface TaskManager {
 
     List<Task> getHistory();
+
+    Collection<Task> getPrioritizedTasks();
 
     //Методы для Task
     List<Task> getTasksList();

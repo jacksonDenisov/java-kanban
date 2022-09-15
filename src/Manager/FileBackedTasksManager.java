@@ -4,12 +4,13 @@ import Exceptions.ManagerSaveException;
 import Model.*;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private final File file;
-
 
     public FileBackedTasksManager(File file) {
         this.file = file;
@@ -130,7 +131,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 history.add(fileReader.readLine());
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка записи");
+            throw new ManagerSaveException("Ошибка чтения");
         }
         //Создание задач из отдельной строки
         int maxId = 0;
@@ -178,14 +179,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager.id = id;
     }
 
-
     private void save() {
         try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write("id,type,name,status,description,parentEpic" + "\n");
+            fileWriter.write("id,type,name,status,description,startTime, endTime, duration, parentEpic" + "\n");
             for (Task task : tasksList.values()) {
                 fileWriter.write(taskToString(task) + "\n");
             }
             for (Epic epic : epicsList.values()) {
+                updateEpicStatus(epic.getId());
+                updateEpicStartEndTime(epic.getId());
                 fileWriter.write(taskToString(epic) + "\n");
             }
             for (SubTask subTask : subTasksList.values()) {
@@ -215,8 +217,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private static List<Integer> historyFromString(String value) {
         List<Integer> history = new ArrayList<>();
         String[] elements = value.split(",");
-        for (int i = 0; i < elements.length; i++) {
-            history.add(Integer.parseInt(elements[i]));
+        try {
+            for (int i = 0; i < elements.length; i++) {
+                history.add(Integer.parseInt(elements[i]));
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Ошибка при считывании Истории из файла. Возможно история не была записана в файл.");
         }
         return history;
     }
@@ -224,7 +230,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private String taskToString(Task task) {
         String result = task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," +
-                task.getDescription();
+                task.getDescription() + "," + task.getStartTime() + "," + task.getEndTime() + "," + task.getDuration();
         if (task.getType() == TaskType.SubTask) {
             int parentEpicId = subTasksList.get(task.getId()).getParentEpicId();
             result += "," + parentEpicId;
@@ -239,15 +245,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         switch (elements[1]) {
             case "Task":
                 task = new Task(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
-                        elements[4]);
+                        elements[4], LocalDateTime.parse(elements[5]), Duration.parse(elements[7]));
                 break;
             case "Epic":
-                task = new Epic(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
-                        elements[4]);
+                if (elements[5].equals("null") || elements[6].equals("null")) {
+                    task = new Epic(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
+                            elements[4], null, null);
+                } else {
+                    task = new Epic(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
+                            elements[4], LocalDateTime.parse(elements[5]), LocalDateTime.parse(elements[6]));
+                }
                 break;
             case "SubTask":
                 task = new SubTask(Integer.parseInt(elements[0]), elements[2], TaskStatus.valueOf(elements[3]),
-                        elements[4], Integer.parseInt(elements[5]));
+                        elements[4], LocalDateTime.parse(elements[5]), Duration.parse(elements[7]),
+                        Integer.parseInt(elements[8]));
                 break;
             default:
                 System.out.println("Не удалось создать задачу из строки: " + value);

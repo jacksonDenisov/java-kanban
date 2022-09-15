@@ -33,10 +33,19 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void addTaskToHistory(Task task) {
-        if (nodeInfo.containsKey(task.getId())) {
-            removeNode(nodeInfo.get(task.getId()));
+        try {
+            //Проверка на перезапись единственной одинаковой задачи
+            if (nodeInfo.size() == 1 && nodeInfo.containsKey(task.getId())) {
+                return;
+            } else if (nodeInfo.containsKey(task.getId())) {
+                removeNode(nodeInfo.get(task.getId()));
+            } else {
+                linkLast(task);
+            }
+        } catch (NullPointerException e){
+            System.out.println("Не удалось получить номер задачи для добавления в историю");
         }
-        linkLast(task);
+
     }
 
     @Override
@@ -73,16 +82,20 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node<Task> node) {
-        nodeInfo.values().remove(node);
-        if (node == tail) {
-            tail = node.prev;
-            tail.next = null;
-        } else if (node == head) {
-            head = node.next;
-            head.prev = null;
-        } else {
-            node.prev.next = node.next;
-            node.next.prev = node.prev;
+        if (node != null){
+            nodeInfo.values().remove(node);
+            if (node.prev == null && node.next == null) {
+                head = null;
+            } else if (node == tail) {
+                tail = node.prev;
+                tail.next = null;
+            } else if (node == head) {
+                head = node.next;
+                head.prev = null;
+            } else {
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
+            }
         }
     }
 

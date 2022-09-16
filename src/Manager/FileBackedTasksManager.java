@@ -143,6 +143,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             switch (task.getType()) {
                 case Task:
                     fileBackedTasksManager.tasksList.put(task.getId(), task);
+                    fileBackedTasksManager.prioritizedTasks.add(task);
                     break;
                 case Epic:
                     fileBackedTasksManager.epicsList.put(task.getId(), (Epic) task);
@@ -150,6 +151,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 case SubTask:
                     SubTask subTask = (SubTask) task;
                     fileBackedTasksManager.subTasksList.put(task.getId(), subTask);
+                    fileBackedTasksManager.prioritizedTasks.add(subTask);
                     Epic parentEpic = fileBackedTasksManager.epicsList.get(subTask.getParentEpicId());
                     parentEpic.addSubTaskInSubTaskListOfEpic(subTask.getId());
                     fileBackedTasksManager.updateEpicStatus(subTask.getParentEpicId());

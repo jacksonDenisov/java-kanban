@@ -10,25 +10,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    InMemoryHistoryManager historyManager;
-    static Task task1 = new Task("name1", "description1");
-    static Task task2 = new Task("name2", "description2");
-    static Task task3 = new Task("name3", "description3");
+    private InMemoryHistoryManager historyManager;
+    private static Task task1 = new Task("name1", "description1");
+    private static Task task2 = new Task("name2", "description2");
+    private static Task task3 = new Task("name3", "description3");
 
     @BeforeAll
-    static void prepareTasks() {
+    public static void prepareTasks() {
         task1.setId(1);
         task2.setId(2);
         task3.setId(3);
     }
 
     @BeforeEach
-    void createNewHistoryManager() {
+    public void createNewHistoryManager() {
         historyManager = new InMemoryHistoryManager();
     }
 
     @Test
-    void getHistory() {
+    public void getHistory() {
         assertEquals(true, historyManager.getHistory().isEmpty());
         historyManager.addTaskToHistory(task1);
         assertEquals(false, historyManager.getHistory().isEmpty());
@@ -37,13 +37,13 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addNewTaskToHistory() {
+    public void addNewTaskToHistory() {
         historyManager.addTaskToHistory(task1);
         assertEquals(task1, historyManager.getHistory().get(0));
     }
 
     @Test
-    void addAnothersTaskToHistory() {
+    public void addAnothersTaskToHistory() {
         historyManager.addTaskToHistory(task1);
         assertEquals(task1, historyManager.getHistory().get(0));
 
@@ -55,7 +55,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addDuplicateTask() {
+    public void addDuplicateTask() {
         historyManager.addTaskToHistory(task1);
         assertEquals(task1, historyManager.getHistory().get(0));
         historyManager.addTaskToHistory(task1);
@@ -64,7 +64,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void removeTheOnlyOneTaskFromHistory() {
+    public void removeTheOnlyOneTaskFromHistory() {
         historyManager.addTaskToHistory(task1);
         assertEquals(1, historyManager.getHistory().size());
         historyManager.removeTaskFromHistory(task1.getId());
@@ -72,7 +72,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void removeTaskFromTheBeginning() {
+    public void removeTaskFromTheBeginning() {
         historyManager.addTaskToHistory(task1);
         historyManager.addTaskToHistory(task2);
         historyManager.addTaskToHistory(task3);
@@ -85,7 +85,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void removeTaskFromTheEnd() {
+    public void removeTaskFromTheEnd() {
         historyManager.addTaskToHistory(task1);
         historyManager.addTaskToHistory(task2);
         historyManager.addTaskToHistory(task3);
@@ -98,7 +98,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void removeTaskFromTheMiddle() {
+    public void removeTaskFromTheMiddle() {
         historyManager.addTaskToHistory(task1);
         historyManager.addTaskToHistory(task2);
         historyManager.addTaskToHistory(task3);

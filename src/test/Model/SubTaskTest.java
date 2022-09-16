@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
-    static LocalDateTime startTime;
-    static Duration duration;
-    static SubTask subTask;
+    private static LocalDateTime startTime;
+    private static Duration duration;
+    private static SubTask subTask;
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
         startTime = LocalDateTime.of(2022, 1, 1, 00, 00);
         duration = Duration.ofMinutes(5);
         subTask = new SubTask("returnCorrectFieldsSubTask", "returnCorrectFieldsSubTask description", startTime, duration, 5);

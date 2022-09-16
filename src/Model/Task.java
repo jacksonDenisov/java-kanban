@@ -3,7 +3,7 @@ package Model;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Task {
+public class Task implements Comparable<Task>{
     private int id;
     private String name;
     private String description;
@@ -29,7 +29,7 @@ public class Task {
         this.duration = duration;
     }
 
-    //id, type, name, status, description, startTime, endTime, duration, parentEpic
+
     //Расширенный конструктор для создания задачи из файла
     public Task(int id, String name, TaskStatus status, String description, LocalDateTime startTime, Duration duration) {
         this.id = id;
@@ -40,7 +40,6 @@ public class Task {
         this.startTime = startTime;
         this.duration = duration;
     }
-
 
     public String getName() {
         return name;
@@ -96,5 +95,19 @@ public class Task {
 
     public LocalDateTime getEndTime() {
         return startTime.plus(duration);
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        if (this.startTime == null) {
+            return 1;
+        } else if (o.startTime == null) {
+            return -1;
+        } else if (this.startTime.isAfter(o.startTime)) {
+            return 1;
+        } else if(this.startTime.isBefore(o.startTime)) {
+            return -1;
+        }
+        return 0;
     }
 }

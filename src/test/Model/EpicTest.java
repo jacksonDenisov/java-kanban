@@ -8,19 +8,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
 
-    static Epic epic;
+    private static Epic epic;
 
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
         epic = new Epic("returnCorrectFieldsEpic", "returnCorrectFieldsEpic description");
     }
 
     @Test
-    void returnCorrectFieldsEpic() {
+    public void returnCorrectFieldsEpic() {
         epic.addSubTaskInSubTaskListOfEpic(5);
         assertEquals(5, epic.getSubTasksListOfEpic().get(0));
     }
-
 
 }

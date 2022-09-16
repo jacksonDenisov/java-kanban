@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTaskManagerTest extends TaskManagerTest {
 
 
-    protected InMemoryTaskManagerTest() {
+    private InMemoryTaskManagerTest() {
         super(new InMemoryTaskManager());
     }
 
     @BeforeEach
-    void resetManager() {
+    public void resetManager() {
         this.taskManager = new InMemoryTaskManager();
     }
 }

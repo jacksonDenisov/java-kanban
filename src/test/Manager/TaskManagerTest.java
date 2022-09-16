@@ -16,7 +16,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
 
-    public TaskManagerTest(T taskManager) {
+    protected TaskManagerTest(T taskManager) {
         this.taskManager = taskManager;
     }
 
@@ -25,11 +25,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected LocalDateTime startTime3 = LocalDateTime.of(2022, 1, 1, 06, 00);
     protected Duration duration1 = Duration.ofMinutes(5);
     protected Duration duration2 = Duration.ofMinutes(10);
-    String name = "name";
-    String description = "description";
+    protected String name = "name";
+    protected String description = "description";
 
     @Test
-    void getPrioritizedTasksTest() {
+    public void getPrioritizedTasksTest() {
         assertEquals(0, taskManager.getPrioritizedTasks().size());
         Task task1 = new Task(name, description, startTime1, duration1);
         Task task2 = new Task(name, description, startTime2, duration2);
@@ -45,9 +45,25 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(task1, tasks.get(0));
     }
 
+    @Test
+    public void clearPrioritizedTasksTest(){
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
+        Task task1 = new Task(name, description, startTime1, duration1);
+        Task task2 = new Task(name, description, startTime2, duration2);
+        Task task3 = new Task(name, description, startTime3, duration1);
+        taskManager.createTask(task1);
+        taskManager.createTask(task2);
+        taskManager.createTask(task3);
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+        taskManager.removeTask(1);
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        taskManager.clearTasksList();
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
+    }
+
     //Проверки для Task
     @Test
-    void getTasksListTest() {
+    public void getTasksListTest() {
         assertEquals(0, taskManager.getTasksList().size());
         Task task1 = new Task(name, description, startTime1, duration1);
         Task task2 = new Task(name, description, startTime2, duration2);
@@ -62,7 +78,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void clearTasksListTest() {
+    public void clearTasksListTest() {
         //Проверка при пустом списке
         taskManager.clearTasksList();
         //Проверка при заполненном
@@ -76,7 +92,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getTaskTest() {
+    public void getTaskTest() {
         Task task1 = new Task(name, description, startTime1, duration1);
         taskManager.createTask(task1);
         assertEquals(task1, taskManager.getTask(1));
@@ -86,7 +102,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createTask() {
+    public void createTask() {
         Task task = new Task(name, description, startTime1, duration1);
         taskManager.createTask(task);
         taskManager.getTask(1);
@@ -95,7 +111,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldNotCreateTask2WhenTasksStartTimeIsEquals() {
+    public void shouldNotCreateTask2WhenTasksStartTimeIsEquals() {
         Task task1 = new Task(name, description, startTime1, duration1);
         Task task2 = new Task(name, description, startTime1, duration2);
         taskManager.createTask(task1);
@@ -105,7 +121,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateTaskTest() {
+    public void updateTaskTest() {
         Task task1 = new Task(name, description, startTime1, duration1);
         Task task2 = new Task(name, description, startTime2, duration2);
         taskManager.createTask(task1);
@@ -116,7 +132,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldNotUpdateTaskWithIncorrectId() {
+    public void shouldNotUpdateTaskWithIncorrectId() {
         Task task1 = new Task(name, description, startTime1, duration1);
         Task task2 = new Task(name, description, startTime2, duration2);
         taskManager.createTask(task1);
@@ -126,11 +142,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removeTaskTest() {
+    public void removeTaskTest() {
         Task task1 = new Task(name, description, startTime1, duration1);
         taskManager.createTask(task1);
         assertEquals(1, taskManager.getTasksList().size());
         taskManager.removeTask(1);
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
         assertEquals(0, taskManager.getTasksList().size());
         //Удаление задачи с несуществующим номером
         taskManager.removeTask(5);
@@ -139,7 +156,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //Проверки для SubTask
     @Test
-    void getSubTasksListTest() {
+    public void getSubTasksListTest() {
         assertEquals(0, taskManager.getSubTasksList().size());
         taskManager.createEpic(new Epic(name, description));
         SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
@@ -155,7 +172,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void clearSubTasksListTest() {
+    public void clearSubTasksListTest() {
         //Проверка при пустом списке
         taskManager.clearSubTasksList();
         //Проверка при заполненном
@@ -172,7 +189,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getSubTaskTest() {
+    public void getSubTaskTest() {
         taskManager.createEpic(new Epic(name, description));
         SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
         taskManager.createSubTask(subtask1);
@@ -183,7 +200,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createSubTask() {
+    public void createSubTask() {
         taskManager.createEpic(new Epic(name, description));
         assertEquals(0, taskManager.getSubTasksList().size());
         assertEquals(0, taskManager.getEpic(1).getSubTasksListOfEpic().size());
@@ -194,7 +211,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateSubTaskTest() {
+    public void updateSubTaskTest() {
         taskManager.createEpic(new Epic(name, description));
         SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
         SubTask subtask2 = new SubTask(name, description, startTime2, duration2, 1);
@@ -207,7 +224,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removeSubTaskTest() {
+    public void removeSubTaskTest() {
         taskManager.createEpic(new Epic(name, description));
         SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
         taskManager.createSubTask(subtask1);
@@ -223,7 +240,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //Проверки для Epic
     @Test
-    void getEpicListTest() {
+    public void getEpicListTest() {
         assertEquals(0, taskManager.getEpicsList().size());
         Epic epic1 = new Epic(name, description);
         Epic epic2 = new Epic(name, description);
@@ -238,7 +255,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void clearEpicListTest() {
+    public void clearEpicListTest() {
         //Проверка при пустом списке
         taskManager.clearEpicsList();
         //Проверка при заполненном
@@ -256,7 +273,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getEpicTest() {
+    public void getEpicTest() {
         Epic epic1 = new Epic(name, description);
         taskManager.createEpic(epic1);
         assertEquals(epic1, taskManager.getEpic(1));
@@ -266,7 +283,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createEpicTest() {
+    public void createEpicTest() {
         Epic epic1 = new Epic(name, description);
         assertEquals(0, taskManager.getEpicsList().size());
         taskManager.createEpic(epic1);
@@ -274,7 +291,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateEpicTest() {
+    public void updateEpicTest() {
         Epic epic1 = new Epic(name, description);
         Epic epic2 = new Epic(name, description);
         SubTask subtask = new SubTask(name, description, startTime1, duration1, 1);
@@ -288,7 +305,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removeEpicTest() {
+    public void removeEpicTest() {
         Epic epic1 = new Epic(name, description);
         SubTask subtask = new SubTask(name, description, startTime1, duration1, 1);
         taskManager.createEpic(epic1);
@@ -303,7 +320,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicTimeTest() {
+    public void epicTimeTest() {
         Epic epic1 = new Epic(name, description);
         SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
         SubTask subtask2 = new SubTask(name, description, startTime2, duration2, 1);
@@ -319,11 +336,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
 
     @Test
-    void epicStatusTest() {
+    public void epicStatusTest() {
         Epic epic = new Epic(name, description);
-        SubTask subtask1 = new SubTask(name, description, startTime1, duration1, 1);
-        SubTask subtask2 = new SubTask(name, description, startTime2, duration2, 1);
-        SubTask subtask3 = new SubTask(name, description, startTime3, duration1, 1);
+        SubTask subtask1 = new SubTask("Имя1", "Описание 1", startTime1, duration1, 1);
+        SubTask subtask2 = new SubTask("Имя2", "Описание 2", startTime2, duration2, 1);
 
         //a. Пустой список подзадач.
         taskManager.createEpic(epic);

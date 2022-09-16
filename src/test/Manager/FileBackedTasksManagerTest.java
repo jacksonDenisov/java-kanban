@@ -15,17 +15,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTasksManagerTest extends TaskManagerTest {
 
-    protected FileBackedTasksManagerTest() {
+    private FileBackedTasksManagerTest() {
         super(new FileBackedTasksManager(new File("src/FileTasksManagerData/BackUp.csv")));
     }
 
-    LocalDateTime startTime1 = LocalDateTime.of(2022, 1, 1, 00, 00);
-    LocalDateTime startTime2 = LocalDateTime.of(2022, 2, 1, 00, 00);
-    Duration duration = Duration.ofMinutes(1);
-    File file = new File("src/FileTasksManagerData/FileBackedTasksManagerData.csv");
+    private LocalDateTime startTime1 = LocalDateTime.of(2022, 1, 1, 00, 00);
+    private LocalDateTime startTime2 = LocalDateTime.of(2022, 2, 1, 00, 00);
+    private Duration duration = Duration.ofMinutes(1);
+    private File file = new File("src/FileTasksManagerData/FileBackedTasksManagerData.csv");
 
     @Test
-    void checkEmptyTaskList() {
+    public void checkEmptyTaskList() {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         //Пустой список задач
         FileBackedTasksManager fileBackedTasksManager2 = fileBackedTasksManager.loadFromFile(file);
@@ -34,7 +34,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void checkEpicWithoutSubTasks() {
+    public void checkEpicWithoutSubTasks() {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         fileBackedTasksManager.createEpic(new Epic("Название эпика 1", "Описание эпика 1"));
         fileBackedTasksManager.getEpic(1);
@@ -44,7 +44,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void checkEmptyHistory() {
+    public void checkEmptyHistory() {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         fileBackedTasksManager.createTask(new Task("Название задачи 1", "Описание задачи 1", startTime1, duration1));
         FileBackedTasksManager fileBackedTasksManager2 = fileBackedTasksManager.loadFromFile(file);
@@ -52,7 +52,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void checkDefault() {
+    public void checkDefault() {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         fileBackedTasksManager.createTask(new Task("Название задачи 1", "Описание задачи 1", startTime1, duration1));
         fileBackedTasksManager.createEpic(new Epic("Название эпика 2", "Описание эпика 2"));

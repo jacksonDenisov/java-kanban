@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final File file;
+    private File file = new File("src/FileTasksManagerData/FileBackedTasksManagerData.csv");
+
+    public FileBackedTasksManager() {
+    }
 
     public FileBackedTasksManager(File file) {
         this.file = file;
@@ -177,11 +180,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    private void setMaxId(int id) {
+    protected void setMaxId(int id) {
         FileBackedTasksManager.id = id;
     }
 
-    private void save() {
+    protected void save() {
         try (Writer fileWriter = new FileWriter(file)) {
             fileWriter.write("id,type,name,status,description,startTime, endTime, duration, parentEpic" + "\n");
             for (Task task : tasksList.values()) {
@@ -203,7 +206,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    private static String historyToString(HistoryManager manager) {
+    protected static String historyToString(HistoryManager manager) {
         String result = "";
         List<Task> taskList = new ArrayList<>(manager.getHistory());
         if (!taskList.isEmpty()) {
@@ -216,7 +219,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    private static List<Integer> historyFromString(String value) {
+    protected static List<Integer> historyFromString(String value) {
         List<Integer> history = new ArrayList<>();
         String[] elements = value.split(",");
         try {
@@ -230,7 +233,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    private String taskToString(Task task) {
+    protected String taskToString(Task task) {
         String result = task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," +
                 task.getDescription() + "," + task.getStartTime() + "," + task.getEndTime() + "," + task.getDuration();
         if (task.getType() == TaskType.SubTask) {
@@ -241,7 +244,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    private Task fromString(String value) {
+    protected Task fromString(String value) {
         Task task = null;
         String[] elements = value.split(",");
         switch (elements[1]) {

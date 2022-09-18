@@ -1,4 +1,2 @@
 id,type,name,status,description,startTime, endTime, duration, parentEpic
-1,Epic,Название эпика 1,NEW,Описание эпика 1,null,null,null
 
-1

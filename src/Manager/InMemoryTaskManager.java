@@ -17,7 +17,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected Set<Task> prioritizedTasks;
 
 
-
     public InMemoryTaskManager() {
         tasksList = new HashMap<>();
         epicsList = new HashMap<>();
@@ -93,7 +92,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTask(int id) {
-        if (tasksList.containsKey(id)){
+        if (tasksList.containsKey(id)) {
             prioritizedTasks.remove(tasksList.get(id));
             tasksList.remove(id);
             historyManager.removeTaskFromHistory(id);
@@ -290,7 +289,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void updateEpicStartEndTime(int id) {
         Epic currentEpic = epicsList.get(id);
-        if (currentEpic.getSubTasksListOfEpic().isEmpty()){
+        if (currentEpic.getSubTasksListOfEpic().isEmpty()) {
             currentEpic.setStartTime(null);
             currentEpic.setEndTime(null);
             currentEpic.setDuration(null);
@@ -299,12 +298,12 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime startTime = LocalDateTime.MAX;
         LocalDateTime endTime = LocalDateTime.MIN;
         Duration duration = Duration.ZERO;
-        for (int subTaskId : currentEpic.getSubTasksListOfEpic()){
+        for (int subTaskId : currentEpic.getSubTasksListOfEpic()) {
             duration = duration.plus(subTasksList.get(subTaskId).getDuration());
-            if (subTasksList.get(subTaskId).getStartTime().isBefore(startTime)){
+            if (subTasksList.get(subTaskId).getStartTime().isBefore(startTime)) {
                 startTime = subTasksList.get(subTaskId).getStartTime();
             }
-            if (subTasksList.get(subTaskId).getEndTime().isAfter(endTime)){
+            if (subTasksList.get(subTaskId).getEndTime().isAfter(endTime)) {
                 endTime = subTasksList.get(subTaskId).getEndTime();
             }
         }

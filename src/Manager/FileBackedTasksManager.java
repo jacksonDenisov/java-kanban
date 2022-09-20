@@ -191,8 +191,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 fileWriter.write(taskToString(task) + "\n");
             }
             for (Epic epic : epicsList.values()) {
-                updateEpicStatus(epic.getId());
-                updateEpicStartEndTime(epic.getId());
                 fileWriter.write(taskToString(epic) + "\n");
             }
             for (SubTask subTask : subTasksList.values()) {

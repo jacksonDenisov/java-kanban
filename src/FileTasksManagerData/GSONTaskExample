@@ -1,0 +1,41 @@
+  {
+    "name": "Название задачи 1",
+    "description": "Описание задачи 1",
+    "status": "NEW",
+    "duration": {
+      "seconds": 60,
+      "nanos": 0
+    },
+    "startTime": "01.01.2021, 00:00",
+    "type": "Task"
+  }
+
+
+
+
+    {
+      "endTime": "01.02.2022, 00:01",
+      "subTasksListOfEpic": [
+        3
+      ],
+      "name": "Epic name 2",
+      "description": "Epic description 2",
+      "status": "NEW",
+      "startTime": "01.02.2022, 00:00",
+      "type": "Epic"
+    }
+
+
+
+  {
+    "parentEpicId": 1,
+    "name": "SubTask name 3",
+    "description": "SubTask description 3",
+    "status": "NEW",
+    "duration": {
+      "seconds": 60,
+      "nanos": 0
+    },
+    "startTime": "01.02.2028, 00:00",
+    "type": "SubTask"
+  }
